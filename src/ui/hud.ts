@@ -59,8 +59,8 @@ export class Hud {
       if (this.panelWing) this.world?.enterRoom(this.panelWing);
       this.refreshEnter();
     });
-    $('modeFly').addEventListener('click', () => this.world?.setMode('fly'));
-    $('modeWalk').addEventListener('click', () => this.world?.setMode('walk'));
+    $('modeFly').addEventListener('click', () => { $('modeFly').blur(); this.world?.setMode('fly'); });
+    $('modeWalk').addEventListener('click', () => { $('modeWalk').blur(); this.world?.setMode('walk'); });
     const dir = $('directory');
     const help = $('help');
     $('dirBtn').addEventListener('click', () => {
@@ -79,7 +79,7 @@ export class Hud {
       help.hidden = true;
       $('helpBtn').setAttribute('aria-expanded', 'false');
     });
-    $('promptBtn').addEventListener('click', () => this.promptAction?.());
+    $('promptBtn').addEventListener('click', () => { $('promptBtn').blur(); this.promptAction?.(); });
     document.addEventListener('ssm:goto', (e) => {
       const id = (e as CustomEvent).detail as WingId;
       if (!this.world) return;
@@ -101,6 +101,7 @@ export class Hud {
       b.addEventListener('click', () => {
         dir.hidden = true;
         $('dirBtn').setAttribute('aria-expanded', 'false');
+        (document.activeElement as HTMLElement | null)?.blur();
         this.world?.goto(w.id);
       });
       dir.appendChild(b);
