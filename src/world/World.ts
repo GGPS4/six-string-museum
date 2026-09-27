@@ -55,7 +55,7 @@ export class World {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.15;
+    this.renderer.toneMappingExposure = 1.05;
     this.scene.background = new THREE.Color('#070912');
     this.scene.fog = this.fog;
 
@@ -82,7 +82,7 @@ export class World {
 
     this.composer = new EffectComposer(this.renderer);
     this.composer.addPass(new RenderPass(this.scene, this.camera));
-    this.bloom = new UnrealBloomPass(new THREE.Vector2(512, 512), 0.75, 0.55, 0.82);
+    this.bloom = new UnrealBloomPass(new THREE.Vector2(512, 512), 0.45, 0.4, 1.0);
     this.composer.addPass(this.bloom);
     this.composer.addPass(new OutputPass());
 
@@ -257,6 +257,7 @@ export class World {
     this.scene.background = new THREE.Color('#0a0807');
     this.walk.setRoom({ hw: this.room.hw, hd: this.room.hd, boxes: this.room.boxes }, { x: 0, z: this.room.hd - 1.6, yaw: 0 });
     this.hooks.setPrompt(null);
+    this.hooks.tip(null);
     this.hooks.setWhere(`${w.letter} · ${w.name} · Esc to leave`);
     this.hooks.onMode('walk', true);
     this.hooks.toast(`Welcome to ${w.name}. Click the glowing things.`);
@@ -276,6 +277,7 @@ export class World {
       this.nearWing = null;
     }
     this.hooks.setWhere(null);
+    this.hooks.tip(null);
     this.hooks.onMode(this.mode, false);
   }
 
@@ -327,6 +329,7 @@ export class World {
   private onClick(e: PointerEvent) {
     if (Math.hypot(e.clientX - this.downAt.x, e.clientY - this.downAt.y) > 6) return;
     const o = this.pick(e.clientX, e.clientY);
+    this.hooks.tip(null);
     if (!o) return;
     if (o.userData.onPick) o.userData.onPick();
     else if (o.userData.wing) {
@@ -429,7 +432,7 @@ export class World {
     if (inPoly(p, HEADSTOCK)) return 'The headstock';
     if (inBody(p)) {
       if (Math.hypot(x - SOUNDHOLE.x, z - SOUNDHOLE.z) < 24) return 'The soundhole';
-      if (z > BRIDGE_Z - 6 && z < BRIDGE_Z + 8) return 'The bridge';
+      if (z > BRIDGE_Z - 6 && z < BRIDGE_Z + 8 && Math.abs(x) < 24) return 'The bridge';
       return z > 0 ? 'The lower bout' : 'The upper bout';
     }
     return z > 110 ? 'The entrance lawn' : 'The lawn';

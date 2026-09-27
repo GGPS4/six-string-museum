@@ -36,7 +36,7 @@ export function cyl(parent: THREE.Object3D, rt: number, rb: number, h: number, m
 function door(g: THREE.Group, w: Wing, width = 2.6, height = 3.4) {
   const z = w.d / 2;
   box(g, width + 0.5, height + 0.3, 0.3, mat('#1b1512', { rough: 0.6 }), 0, 0, z + 0.05);
-  const light = new THREE.Mesh(new THREE.PlaneGeometry(width, height), glow(w.neon, 1.1));
+  const light = new THREE.Mesh(new THREE.PlaneGeometry(width, height), glow(w.neon, 0.55));
   light.position.set(0, height / 2, z + 0.22);
   light.name = 'door';
   g.add(light);
@@ -290,7 +290,7 @@ export function makePavilion(w: Wing): THREE.Group {
         g.add(s);
       }
       for (let i = 0; i < 9; i++) {
-        const f = new THREE.Mesh(new THREE.SphereGeometry(0.28, 10, 8), glow('#ffd86b', 2.2));
+        const f = new THREE.Mesh(new THREE.SphereGeometry(0.28, 10, 8), glow('#ffd86b', 1.2));
         const a = i * 2.2;
         f.position.set(Math.cos(a) * 2.6, 7.5 + (i % 3) * 1.1, -1 + Math.sin(a) * 2.2);
         g.add(f);

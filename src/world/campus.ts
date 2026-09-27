@@ -37,7 +37,7 @@ export function buildCampus(): Campus {
   const pickables: THREE.Object3D[] = [];
 
   // Lawn
-  const lawnMesh = new THREE.Mesh(new THREE.PlaneGeometry(1600, 1600), new THREE.MeshStandardMaterial({ map: lawn(), roughness: 1 }));
+  const lawnMesh = new THREE.Mesh(new THREE.PlaneGeometry(6000, 6000), new THREE.MeshStandardMaterial({ map: lawn(), roughness: 1 }));
   lawnMesh.rotation.x = -Math.PI / 2;
   lawnMesh.position.set(0, -0.02, -100);
   group.add(lawnMesh);
@@ -78,7 +78,7 @@ export function buildCampus(): Campus {
   }
   box(group, 36, 0.5, 0.9, mat('#efe6d2', { rough: 0.4 }), 0, STRING_Y - 0.2, BRIDGE_Z);
   for (let s = 0; s < 6; s++) {
-    const pin = new THREE.Mesh(new THREE.SphereGeometry(0.55, 14, 10), glow('#fff1cf', 1.4));
+    const pin = new THREE.Mesh(new THREE.SphereGeometry(0.55, 14, 10), glow('#fff1cf', 0.8));
     pin.position.set(stringX(s, BRIDGE_Z), 0.95, BRIDGE_Z + 3.6);
     group.add(pin);
   }
@@ -94,7 +94,7 @@ export function buildCampus(): Campus {
     const hw = neckHalf(z);
     box(group, hw * 2, 0.22, 0.7, fretMat, 0, 0.3, z);
   });
-  const inlay = glow('#fff4dc', 0.9);
+  const inlay = glow('#fff4dc', 0.35);
   for (const n of [3, 5, 7, 9, 12]) {
     const z = (fretZ(n) + fretZ(n - 1)) / 2;
     for (const x of n === 12 ? [-7, 7] : [0]) {
@@ -135,8 +135,8 @@ export function buildCampus(): Campus {
   // Strings: six glowing cables from the saddle to the nut, then to their posts.
   const strings: THREE.Mesh[] = [];
   for (let s = 0; s < 6; s++) {
-    const r = 0.16 - s * 0.018;
-    const m = glow('#fff1cf', 1.1).clone();
+    const r = 0.085 - s * 0.009;
+    const m = glow('#fff1cf', 0.45).clone();
     const a = new THREE.Vector3(stringX(s, BRIDGE_Z), STRING_Y, BRIDGE_Z);
     const b = new THREE.Vector3(stringX(s, NUT_Z), STRING_Y, NUT_Z);
     const main = cable(a, b, r, m);
@@ -172,7 +172,7 @@ export function buildCampus(): Campus {
   colliders.push({ x: 38, z: 14, hw: 2.4, hd: 2.4 });
 
   // Lamp posts down both sides of the promenade.
-  const lampHead = glow('#ffd79a', 2);
+  const lampHead = glow('#ffd79a', 1.2);
   const lampPost = mat('#1b1714', { rough: 0.6 });
   const lampZ = [...FRETS.filter((_, i) => i % 2 === 1), 20, 40, 80, 100];
   for (const z of lampZ) {
@@ -225,7 +225,7 @@ export function buildCampus(): Campus {
         const base = s.userData.base as THREE.Vector3;
         s.position.x = base.x + Math.sin(t * 55 + i) * vib[i] * 0.5;
         const m = s.material as THREE.MeshStandardMaterial;
-        m.emissiveIntensity = 1.1 + vib[i] * 3;
+        m.emissiveIntensity = 0.45 + vib[i] * 2.5;
         if (vib[i] <= 0.001) s.position.copy(base);
       });
     },

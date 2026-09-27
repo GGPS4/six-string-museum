@@ -75,7 +75,7 @@ export const lawn = () =>
       g.fillStyle = rnd() > 0.5 ? 'rgba(40,70,40,.35)' : 'rgba(5,12,6,.5)';
       g.fillRect(rnd() * w, rnd() * h, 1.5, 3 + rnd() * 3);
     }
-  }, [80, 80]);
+  }, [300, 300]);
 
 export const brick = () =>
   canvasTexture('brick', 256, 256, (g, w, h) => {

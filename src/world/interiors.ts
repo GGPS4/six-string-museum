@@ -4,7 +4,7 @@ import type { Collider } from './campus';
 import { makeGuitar, disposeGuitar } from './guitar3d';
 import { box, cyl, glow, mat } from './pavilions';
 import { textSprite } from './labels';
-import { DISPLAY, MONO, SERIF, drawPlate, fitText, freshTexture, grain, redraw, stripes } from './textures';
+import { DISPLAY, MONO, SERIF, drawPlate, fitText, freshTexture, grain, neonSign, redraw, stripes } from './textures';
 
 /** What an interior needs from the rest of the app. */
 export interface RoomApi {
@@ -69,8 +69,8 @@ function shell(g: THREE.Group, hw: number, hd: number, s: Shell, neon: string) {
   box(g, 0.06, 0.06, hd * 2, trim, -hw + 0.05, H - 0.3, 0);
   box(g, 0.06, 0.06, hd * 2, trim, hw - 0.05, H - 0.3, 0);
   // Lighting
-  g.add(new THREE.HemisphereLight('#fff2dd', '#2a2018', 1.1));
-  const l1 = new THREE.PointLight(s.light, 40, hd * 3, 1.6);
+  g.add(new THREE.HemisphereLight('#fff2dd', '#3a2e24', 1.6));
+  const l1 = new THREE.PointLight(s.light, 26, hd * 3, 1.6);
   l1.position.set(0, H - 0.6, -hd * 0.3);
   g.add(l1);
   const l2 = new THREE.PointLight(s.light, 22, hd * 2.5, 1.6);
@@ -115,12 +115,12 @@ export function buildRoom(w: Wing, api: RoomApi): Room {
       const iron = mat('#1a1a1c', { metal: 0.6, rough: 0.5 });
       for (let z = -hd + 1; z < hd - 2; z += 0.6) cyl(g, 0.03, 0.03, 1, iron, hw - 1.3, 0, z, 6);
       box(g, 0.06, 0.06, hd * 2 - 3, iron, hw - 1.3, 0.95, -0.5);
-      const hof = textSprite('Hall of Fame', '#ffd27a', 5);
-      hof.position.set(-hw + 0.4, 5.2, 0);
-      g.add(hof);
-      const gy = textSprite('The Graveyard', '#b8b8c8', 5);
-      gy.position.set(hw - 0.4, 5.2, 0);
-      g.add(gy);
+      for (const [side, text, color] of [[-1, 'Hall of Fame', '#ffd27a'], [1, 'The Graveyard', '#b8b8c8']] as [number, string, string][]) {
+        const sgn = new THREE.Mesh(new THREE.PlaneGeometry(7, 1.75), new THREE.MeshBasicMaterial({ map: neonSign(text, color, 1024, 256), toneMapped: false }));
+        sgn.position.set(side * (hw - 0.04), 4.9, -hd + 5);
+        sgn.rotation.y = -side * Math.PI / 2;
+        g.add(sgn);
+      }
       // Donation kiosk at the back
       cyl(g, 0.7, 0.9, 1.1, mat('#2a1a10'), 0, 0, -hd + 2, 20);
       const kiosk = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.8, 0.1), glow('#ffd27a', 1));
@@ -146,7 +146,7 @@ export function buildRoom(w: Wing, api: RoomApi): Room {
           guitar.rotation.y = side < 0 ? Math.PI / 2 : -Math.PI / 2;
           if (side > 0) guitar.rotation.z = (i % 2 ? 1 : -1) * 0.08;
           guitar.userData.exhibit = x.id;
-          const lamp = new THREE.Mesh(new THREE.CircleGeometry(0.7, 20), glow(side < 0 ? '#ffe2a8' : '#8b8ba8', side < 0 ? 1.2 : 0.5));
+          const lamp = new THREE.Mesh(new THREE.CircleGeometry(0.5, 20), glow(side < 0 ? '#ffe2a8' : '#8b8ba8', side < 0 ? 0.6 : 0.3));
           lamp.position.set(side * (hw - 0.05), 5.4, guitar.position.z);
           lamp.rotation.y = -side * Math.PI / 2;
           hung.add(lamp);
@@ -176,10 +176,9 @@ export function buildRoom(w: Wing, api: RoomApi): Room {
       const place = () => {
         if (guitar) { disposeGuitar(guitar); g.remove(guitar); const i = pickables.indexOf(guitar); if (i >= 0) pickables.splice(i, 1); }
         guitar = makeGuitar(S.getGuitar());
-        guitar.scale.setScalar(1.7);
-        guitar.rotation.x = -Math.PI / 2;
-        guitar.rotation.z = Math.PI / 2;
-        guitar.position.set(0, 1.2, 0);
+        guitar.scale.setScalar(1.6);
+        guitar.rotation.x = -0.22;
+        guitar.position.set(0, 2.0, -0.3);
         g.add(guitar);
         add(guitar, { tip: 'Your build · click to hear it', onPick: () => S.playClean('campfire') });
       };
@@ -403,7 +402,7 @@ export function buildRoom(w: Wing, api: RoomApi): Room {
           c.fillText(String(i + 1), W / 2, H / 2 + 4);
         });
         const t = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.8), new THREE.MeshStandardMaterial({ map: tex, emissive: '#2a2018', emissiveMap: tex, roughness: 0.7 }));
-        t.position.set(side * (hw - 0.05), 4.2 - row * 0.95, -hd + 3 + col * 1.1 + (side > 0 ? 0 : 0));
+        t.position.set(side * (hw - 0.05), 4.2 - row * 0.95, -hd + 3 + (side < 0 ? 4 - col : col) * 1.1);
         t.rotation.y = -side * Math.PI / 2;
         g.add(t);
         tiles.push(t);
@@ -435,15 +434,15 @@ export function buildRoom(w: Wing, api: RoomApi): Room {
       cyl(g, 1.3, 1.3, 0.9, mat('#3a1b58', { rough: 0.9 }), 0, 0, -1.2, 32);
       block(0, -1.2, 2.8, 2.8);
       const ball = new THREE.Mesh(new THREE.SphereGeometry(0.4, 24, 18), glow('#c58bff', 1.6).clone());
-      ball.position.set(0, 1.3, -1.8);
+      ball.position.set(0, 1.35, -1.5);
       g.add(ball);
       add(ball, { tip: 'Crystal ball · draw three cards', onPick: () => { S.drawTarot(); openHere(); } });
       updaters.push((tt) => { (ball.material as THREE.MeshStandardMaterial).emissiveIntensity = 1.3 + Math.sin(tt * 2) * 0.5; });
       const cards: { mesh: THREE.Mesh; tex: THREE.CanvasTexture }[] = [];
       for (let i = 0; i < 3; i++) {
         const c = screen(0.55, 0.85, () => {}, false);
-        c.mesh.position.set(-0.7 + i * 0.7, 1.35, -0.8);
-        c.mesh.rotation.x = -0.35;
+        c.mesh.position.set(-0.75 + i * 0.75, 1.0, -0.3);
+        c.mesh.rotation.x = -1.3;
         g.add(c.mesh);
         cards.push(c);
       }
@@ -561,7 +560,7 @@ export function buildRoom(w: Wing, api: RoomApi): Room {
         const a = n.l * ((Math.PI * 2) / 5) + (i % 3) * 0.35;
         const r = 3 + (i % 2) * 0.8;
         const y = 1.2 + (i / sorted.length) * 5.2;
-        const fruit = new THREE.Mesh(new THREE.SphereGeometry(0.26, 14, 10), glow(laneCol[n.l] ?? '#ffd86b', 2));
+        const fruit = new THREE.Mesh(new THREE.SphereGeometry(0.22, 14, 10), glow(laneCol[n.l] ?? '#ffd86b', 1.1));
         fruit.position.set(Math.cos(a) * r, y, -1 + Math.sin(a) * r);
         g.add(fruit);
         const twig = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, r, 5), mat('#4a3122'));
@@ -577,7 +576,7 @@ export function buildRoom(w: Wing, api: RoomApi): Room {
       break;
     }
     case 'hospital': {
-      shell(g, hw, hd, { floor: mat('#cfd6d4', { rough: 0.4 }), wall: '#e9ecea', height: 4.5, light: '#e8fbff' }, w.neon);
+      shell(g, hw, hd, { floor: mat('#7f8c8a', { rough: 0.5 }), wall: '#b7c2bf', height: 4.5, light: '#e8fbff' }, w.neon);
       const patients = ((S.CASES2 || []) as any[]).slice(0, 3);
       patients.forEach((p, i) => {
         const x = -4 + i * 4;
@@ -585,9 +584,9 @@ export function buildRoom(w: Wing, api: RoomApi): Room {
         box(g, 1.8, 0.15, 2.8, mat('#9fc9d8', { rough: 0.8 }), x, 0.7, -hd + 2.5);
         block(x, -hd + 2.5, 2.2, 3.2);
         const gtr = makeGuitar(p.g);
-        gtr.scale.setScalar(1.2);
-        gtr.rotation.x = -Math.PI / 2;
-        gtr.position.set(x, 0.95, -hd + 2.5);
+        gtr.scale.setScalar(1.3);
+        gtr.rotation.x = -0.75;
+        gtr.position.set(x, 1.45, -hd + 2.3);
         g.add(gtr);
         disposers.push(() => disposeGuitar(gtr));
         const halo = new THREE.Mesh(new THREE.RingGeometry(0.9, 1.1, 32), glow('#ff6b6b', 1.4).clone());

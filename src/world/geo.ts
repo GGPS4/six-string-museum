@@ -13,7 +13,7 @@ export const SCALE = 303;
 export const NUT_Z = BRIDGE_Z - SCALE; // -248
 export const JOINT_Z = -80;
 export const HEAD_END_Z = -324;
-export const STRING_Y = 4.2;
+export const STRING_Y = 5.6;
 export const OPEN_MIDI = [40, 45, 50, 55, 59, 64];
 export const STRING_NAMES = ['low E', 'A', 'D', 'G', 'B', 'high E'];
 
